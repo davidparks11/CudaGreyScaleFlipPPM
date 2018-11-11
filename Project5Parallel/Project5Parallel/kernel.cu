@@ -14,6 +14,7 @@
 
 #define PPM_MAGIC_1 'P'
 #define PPM_MAGIC_2 '6' 
+#define BLOCK_SIZE 16;
 
 struct PPM_header {
 	int width;
@@ -124,7 +125,6 @@ int main(int argc, char *argv[]) {
 	PPM_header img_header;
 	cudaError_t cudaStatus;
 
-	const unsigned int BLOCK_SIZE = 16;
 
 	try {
 		std::ifstream ifs(argv[1], std::ios::binary);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
 		dim3 dim_block(BLOCK_SIZE, BLOCK_SIZE, 1);
 
 		//define grid
-		dim3 dim_grid(ceil(((float)img_header.width / 2) / 16.0), ceil((float)img_header.height / 16.0), 1);
+		dim3 dim_grid(ceil(((float)img_header.width / 2) / BLOCK_SIZE), ceil((float)img_header.height / BLOCK_SIZE), 1);
 
 		//call kernel function
 		gray_scale_flip << <dim_grid, dim_block >> >(img_device, img_header.height, img_header.width);
